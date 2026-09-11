@@ -25,33 +25,86 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @Override
-    public TaskResponse getAllTasks(Integer pageNumber, Integer pageSize, String sortBy, String orderDir){
 
-        Sort sortByAndOrder = orderDir.equalsIgnoreCase("asc") ?
-                Sort.by(sortBy).ascending() :
+    @Override
+    public TaskResponse getAllTasks(Integer pageNumber, Integer pageSize, String sortBy, String orderDir) {
+        Sort sortByAndOrder = orderDir.equalsIgnoreCase("asc")?
+                Sort.by(sortBy).ascending():
                 Sort.by(sortBy).descending();
 
-        Pageable pageDetails = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
-        Page<Task> taskPage = taskRepository.findAll(pageDetails);
+        Pageable pageRequest = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+        Page<Task> taskPage = taskRepository.findAll(pageRequest);
 
         List<Task> tasks = taskPage.getContent();
 
-        if(tasks.isEmpty()){
-            throw new APIException("No tasks created yet.");
-        }
+        if(tasks.isEmpty()) throw new APIException("No tasks found");
 
-        List<TaskDTO> taskDTOS = tasks.stream().map(task -> modelMapper.map(task,TaskDTO.class)).toList();
+        List<TaskDTO> taskDTOS = tasks.stream().map(task -> modelMapper.map(task, TaskDTO.class)).toList();
 
         TaskResponse taskResponse = new TaskResponse();
         taskResponse.setContent(taskDTOS);
-        taskResponse.setTotalPages(taskPage.getTotalPages());
-        taskResponse.setTotalElements(taskPage.getTotalElements());
         taskResponse.setPageNumber(taskPage.getNumber());
         taskResponse.setPageSize(taskPage.getSize());
+        taskResponse.setTotalPages(taskPage.getTotalPages());
+        taskResponse.setTotalElements(taskPage.getTotalElements());
         taskResponse.setLastPage(taskPage.isLast());
 
         return taskResponse;
     }
 
+    @Override
+    public TaskDTO getTaskById(Long id) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new APIException("Task not found with id: " + id));
+
+        return modelMapper.map(task, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO getTaskByName(String name) {
+
+        Task task = taskRepository.findByName(name)
+                .orElseThrow(() -> new APIException("Task not found with name: " + name));
+
+        return modelMapper.map(task, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO createTask(TaskDTO taskDTO) {
+
+        Task task = modelMapper.map(taskDTO, Task.class);
+
+        Task savedTask = taskRepository.save(task);
+
+        return modelMapper.map(savedTask, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new APIException(
+                        "Task not found with id: " + taskDTO.getTaskId()
+                ));
+
+        modelMapper.map(taskDTO, task);
+
+        Task updatedTask = taskRepository.save(task);
+
+        return modelMapper.map(updatedTask, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO deleteTask(Long id) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new APIException(
+                        "Task not found with id: " + id
+                ));
+
+        taskRepository.delete(task);
+
+        return modelMapper.map(task, TaskDTO.class);
+    }
 }

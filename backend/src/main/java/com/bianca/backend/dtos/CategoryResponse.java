@@ -6,15 +6,17 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProjectResponse {
+@Data
+public class CategoryResponse {
 
-    private List<ProjectDTO> content;
+    private List<CategoryDTO> content;
     private Integer pageNumber;
     private Integer pageSize;
     private Long totalElements;
     private Integer totalPages;
     private boolean isLastPage;
+
 }
