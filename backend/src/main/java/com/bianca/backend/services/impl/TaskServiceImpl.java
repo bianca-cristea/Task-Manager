@@ -64,7 +64,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO getTaskByName(String name) {
 
-        Task task = taskRepository.findByName(name)
+        Task task = taskRepository.findByTitle(name)
                 .orElseThrow(() -> new APIException("Task not found with name: " + name));
 
         return modelMapper.map(task, TaskDTO.class);

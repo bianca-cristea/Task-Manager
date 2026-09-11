@@ -29,9 +29,9 @@ public class TaskController {
     }
 
 
-    @GetMapping("/tasks/{name]")
-    public ResponseEntity<TaskDTO> getTask(@PathVariable String name) {
-        return  new ResponseEntity<>(taskService.getTaskByName(name),HttpStatus.OK);
+    @GetMapping("/tasks/{title}")
+    public ResponseEntity<TaskDTO> getTask(@PathVariable String title) {
+        return  new ResponseEntity<>(taskService.getTaskByName(title),HttpStatus.OK);
     }
 
     @PostMapping("/tasks")
