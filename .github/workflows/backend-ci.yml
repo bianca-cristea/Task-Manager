@@ -18,5 +18,6 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name : Build and test
+      - name: Build and test
         run: ./mvnw clean verify
+        working-directory: backend
