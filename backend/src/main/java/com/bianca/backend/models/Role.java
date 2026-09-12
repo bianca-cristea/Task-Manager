@@ -20,7 +20,12 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private AppRole roleName;
 
+
+
     @ManyToMany(mappedBy = "roles")
     private List<User> users;
 
+    public Role(AppRole roleName) {
+        this.roleName = roleName;
+    }
 }
