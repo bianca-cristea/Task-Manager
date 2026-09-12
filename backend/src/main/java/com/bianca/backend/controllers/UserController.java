@@ -1,6 +1,7 @@
 package com.bianca.backend.controllers;
 
 import com.bianca.backend.dtos.UserDTO;
+import com.bianca.backend.dtos.UserRegisterDTO;
 import com.bianca.backend.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,22 +46,17 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(
-            @PathVariable Long id,
-            @RequestBody UserDTO userDTO
+    public ResponseEntity<UserDTO> updateUser( @PathVariable Long id, @RequestBody UserRegisterDTO userRegisterDTO
     ) {
-
-        UserDTO updatedUser = userService.updateUser(id, userDTO);
+        UserDTO updatedUser = userService.updateUser(id, userRegisterDTO);
 
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping
-    public ResponseEntity<UserDTO> deleteUser(
-            @RequestBody UserDTO userDTO
-    ) {
+    public ResponseEntity<UserDTO> deleteUser(Long id) {
 
-        UserDTO deletedUser = userService.deleteUser(userDTO);
+        UserDTO deletedUser = userService.deleteUser(id);
 
         return ResponseEntity.ok(deletedUser);
     }
