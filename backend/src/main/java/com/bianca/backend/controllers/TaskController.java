@@ -1,5 +1,6 @@
 package com.bianca.backend.controllers;
 
+import com.bianca.backend.config.AppConstants;
 import com.bianca.backend.dtos.TaskDTO;
 import com.bianca.backend.dtos.TaskResponse;
 import com.bianca.backend.models.Task;
@@ -19,18 +20,23 @@ public class TaskController {
     private TaskService taskService;
 
     @GetMapping("/tasks")
-    public ResponseEntity<TaskResponse> getTasks(Integer pageNumber, Integer pageSize, String sortBy, String orderDir) {
-       return new ResponseEntity<>(taskService.getAllTasks(pageNumber, pageSize,sortBy,orderDir), HttpStatus.OK);
+    public ResponseEntity<TaskResponse> getTasks(
+            @RequestParam(name="pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name="pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name="sortBy", defaultValue = AppConstants.SORT_TASKS_BY, required = false) String sortBy,
+            @RequestParam(name="orderDir", defaultValue = AppConstants.SORT_DIR, required = false) String orderDir
+    ){
+        return new ResponseEntity<>(taskService.getAllTasks(pageNumber,pageSize,sortBy,orderDir),HttpStatus.OK);
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<TaskDTO> getTask(@PathVariable Long id) {
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         return new ResponseEntity<>(taskService.getTaskById(id),HttpStatus.OK);
     }
 
 
-    @GetMapping("/tasks/{title}")
-    public ResponseEntity<TaskDTO> getTask(@PathVariable String title) {
+    @GetMapping("/tasks/title/{title}")
+    public ResponseEntity<TaskDTO> getTaskByTitle(@PathVariable String title) {
         return  new ResponseEntity<>(taskService.getTaskByName(title),HttpStatus.OK);
     }
 

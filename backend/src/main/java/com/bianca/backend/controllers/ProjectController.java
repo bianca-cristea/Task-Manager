@@ -1,5 +1,6 @@
 package com.bianca.backend.controllers;
 
+import com.bianca.backend.config.AppConstants;
 import com.bianca.backend.dtos.ProjectDTO;
 import com.bianca.backend.dtos.ProjectResponse;
 import com.bianca.backend.services.ProjectService;
@@ -20,17 +21,13 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<ProjectResponse> getAllProjects(
-            @RequestParam(defaultValue = "0") Integer pageNumber,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String orderDir
+            @RequestParam(name="pageNumber", defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer pageNumber,
+            @RequestParam(name="pageSize", defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,
+            @RequestParam(name="orderBy", defaultValue = AppConstants.SORT_PROJECTS_BY, required = false) String sortBy,
+            @RequestParam(name="orderDir", defaultValue = AppConstants.SORT_DIR, required = false) String orderDir
     ) {
 
-        ProjectResponse projectResponse = projectService.getAllProjects(
-                pageNumber,
-                pageSize,
-                sortBy,
-                orderDir
+        ProjectResponse projectResponse = projectService.getAllProjects(pageNumber,pageSize, sortBy, orderDir
         );
 
         return ResponseEntity.ok(projectResponse);

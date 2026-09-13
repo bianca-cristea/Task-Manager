@@ -1,5 +1,6 @@
 package com.bianca.backend.controllers;
 
+import com.bianca.backend.config.AppConstants;
 import com.bianca.backend.dtos.CategoryDTO;
 import com.bianca.backend.dtos.CategoryResponse;
 import com.bianca.backend.services.CategoryService;
@@ -20,20 +21,12 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<CategoryResponse> getAllCategories(
-            @RequestParam(defaultValue = "0") Integer pageNumber,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String orderDir
+      @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+      @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+      @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
+      @RequestParam(name = "orderDir", defaultValue = AppConstants.SORT_DIR, required = false) String orderDir
     ) {
-
-        CategoryResponse categoryResponse = categoryService.getAllCategories(
-                pageNumber,
-                pageSize,
-                sortBy,
-                orderDir
-        );
-
-        return ResponseEntity.ok(categoryResponse);
+        return new ResponseEntity<>(categoryService.getAllCategories(pageNumber,pageSize,sortBy,orderDir),HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
