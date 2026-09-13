@@ -5,7 +5,8 @@ import com.bianca.backend.dtos.TaskResponse;
 
 public interface TaskService {
 
-    public TaskResponse getAllTasks(Integer pageNumber, Integer pageSize, String sortBy, String orderDir);
+    public TaskResponse getAllTasksForAdmin(Integer pageNumber, Integer pageSize, String sortBy, String orderDir);
+    public TaskResponse getAllTasksForUser(Integer pageNumber, Integer pageSize, String sortBy, String orderDir);
     public TaskDTO getTaskById(Long id);
     public TaskDTO getTaskByName(String name);
 

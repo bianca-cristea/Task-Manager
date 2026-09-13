@@ -8,6 +8,7 @@ import com.bianca.backend.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,16 +20,27 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @GetMapping("/tasks")
-    public ResponseEntity<TaskResponse> getTasks(
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/tasks")
+    public ResponseEntity<TaskResponse> getTasksForAdmin(
             @RequestParam(name="pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name="pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name="sortBy", defaultValue = AppConstants.SORT_TASKS_BY, required = false) String sortBy,
             @RequestParam(name="orderDir", defaultValue = AppConstants.SORT_DIR, required = false) String orderDir
     ){
-        return new ResponseEntity<>(taskService.getAllTasks(pageNumber,pageSize,sortBy,orderDir),HttpStatus.OK);
+        return new ResponseEntity<>(taskService.getAllTasksForAdmin(pageNumber,pageSize,sortBy,orderDir),HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/my/tasks")
+    public ResponseEntity<TaskResponse> getTasksForUser(
+            @RequestParam(name="pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name="pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name="sortBy", defaultValue = AppConstants.SORT_TASKS_BY, required = false) String sortBy,
+            @RequestParam(name="orderDir", defaultValue = AppConstants.SORT_DIR, required = false) String orderDir
+    ){
+        return new ResponseEntity<>(taskService.getAllTasksForUser(pageNumber,pageSize,sortBy,orderDir),HttpStatus.OK);
+    }
     @GetMapping("/tasks/{id}")
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         return new ResponseEntity<>(taskService.getTaskById(id),HttpStatus.OK);

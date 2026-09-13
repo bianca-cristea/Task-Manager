@@ -6,10 +6,11 @@ import com.bianca.backend.dtos.ProjectResponse;
 import com.bianca.backend.services.ProjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/api")
 public class ProjectController {
 
 
@@ -19,15 +20,31 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping
-    public ResponseEntity<ProjectResponse> getAllProjects(
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/projects")
+    public ResponseEntity<ProjectResponse> getAllProjectsForAdmin(
             @RequestParam(name="pageNumber", defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer pageNumber,
             @RequestParam(name="pageSize", defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,
             @RequestParam(name="orderBy", defaultValue = AppConstants.SORT_PROJECTS_BY, required = false) String sortBy,
             @RequestParam(name="orderDir", defaultValue = AppConstants.SORT_DIR, required = false) String orderDir
     ) {
 
-        ProjectResponse projectResponse = projectService.getAllProjects(pageNumber,pageSize, sortBy, orderDir
+        ProjectResponse projectResponse = projectService.getAllProjectsForAdmin(pageNumber,pageSize, sortBy, orderDir
+        );
+
+        return ResponseEntity.ok(projectResponse);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/my/projects")
+    public ResponseEntity<ProjectResponse> getAllProjectsForUser(
+            @RequestParam(name="pageNumber", defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer pageNumber,
+            @RequestParam(name="pageSize", defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,
+            @RequestParam(name="orderBy", defaultValue = AppConstants.SORT_PROJECTS_BY, required = false) String sortBy,
+            @RequestParam(name="orderDir", defaultValue = AppConstants.SORT_DIR, required = false) String orderDir
+    ) {
+
+        ProjectResponse projectResponse = projectService.getAllProjectsForUser(pageNumber,pageSize, sortBy, orderDir
         );
 
         return ResponseEntity.ok(projectResponse);

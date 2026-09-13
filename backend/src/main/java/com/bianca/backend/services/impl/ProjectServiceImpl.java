@@ -7,6 +7,7 @@ import com.bianca.backend.exception.ResourceNotFoundException;
 import com.bianca.backend.models.Project;
 import com.bianca.backend.repositories.ProjectRepository;
 import com.bianca.backend.services.ProjectService;
+import com.bianca.backend.util.AuthUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,14 +27,42 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private AuthUtil authUtil;
+
     @Override
-    public ProjectResponse getAllProjects(Integer pageNumber, Integer pageSize, String sortBy, String orderDir) {
+    public ProjectResponse getAllProjectsForAdmin(Integer pageNumber, Integer pageSize, String sortBy, String orderDir) {
         Sort sortByAndOrder = orderDir.equalsIgnoreCase("asc")?
                 Sort.by(sortBy).ascending():
                 Sort.by(sortBy).descending();
 
         Pageable pageRequest = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
         Page<Project> projectPage = projectRepository.findAll(pageRequest);
+
+        List<Project> projectList = projectPage.getContent();
+        if(projectList.isEmpty()) throw new APIException("No projects found");
+
+        List<ProjectDTO> projectDTOS = projectList.stream().map(project -> modelMapper.map(project,ProjectDTO.class)).toList();
+
+        ProjectResponse projectResponse = new ProjectResponse();
+        projectResponse.setContent(projectDTOS);
+        projectResponse.setPageNumber(projectPage.getNumber());
+        projectResponse.setPageSize(projectPage.getSize());
+        projectResponse.setTotalElements(projectPage.getTotalElements());
+        projectResponse.setTotalPages(projectPage.getTotalPages());
+
+        return projectResponse;
+    }
+
+
+    @Override
+    public ProjectResponse getAllProjectsForUser(Integer pageNumber, Integer pageSize, String sortBy, String orderDir) {
+        Sort sortByAndOrder = orderDir.equalsIgnoreCase("asc")?
+                Sort.by(sortBy).ascending():
+                Sort.by(sortBy).descending();
+
+        Pageable pageRequest = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+        Page<Project> projectPage = projectRepository.findByUser(authUtil.loggedInUser(),pageRequest);
 
         List<Project> projectList = projectPage.getContent();
         if(projectList.isEmpty()) throw new APIException("No projects found");
@@ -70,6 +99,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = new Project();
         project.setProjectName(projectDTO.getProjectName());
         project.setDescription(projectDTO.getDescription());
+        project.setUser(authUtil.loggedInUser());
 
         return modelMapper.map(projectRepository.save(project),ProjectDTO.class);
     }
@@ -77,6 +107,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectDTO updateProject(Long id, ProjectDTO projectDTO) {
         Project project = projectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Project","projectId",id));
+
+        if(!project.getUser().getUserId().equals(authUtil.loggedInUserId())){
+            throw new APIException("You are not authorized to modify this project.");
+        }
 
         project.setProjectName(projectDTO.getProjectName());
         project.setDescription(projectDTO.getDescription());
@@ -88,6 +122,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectDTO deleteProject(Long id) {
         Project project = projectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Project","projectId",id));
+        if(!project.getUser().getUserId().equals(authUtil.loggedInUserId())){
+            throw new APIException("You are not authorized to delete this project.");
+        }
         projectRepository.delete(project);
 
         return modelMapper.map(project,ProjectDTO.class);
