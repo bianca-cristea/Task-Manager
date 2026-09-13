@@ -1,6 +1,8 @@
 package com.bianca.backend.repositories;
 
 import com.bianca.backend.models.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +13,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByUsername(String username);
 
     boolean existsByUsername(String bianca);
+
+    boolean existsByEmail(@NotBlank @Email String email);
 }
