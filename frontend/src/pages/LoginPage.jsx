@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../api/api";
+import api from "../api/axiosConfig";
 import { login } from "../redux/authSlice";
 
 function LoginPage() {
